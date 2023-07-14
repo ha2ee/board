@@ -7,7 +7,7 @@ on:
 
 env:
   PROJECT_NAME: board
-  BUCKET_NAME: ha2ee-cicd-bucket
+  BUCKET_NAME: board-cicd-bucket
   CODE_DEPLOY_APP_NAME: cicdapp
   DEPLOYMENT_GROUP_NAME: cicdapp_deploy
 
