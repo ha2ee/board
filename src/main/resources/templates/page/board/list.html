@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/layoutFile :: layout(~{::title},~{::section})}">
+<head>
+    <title>게시판</title>
+</head>
+<body>
+<br>
+<!-- 게시글 목록 부분 -->
+<section>
+
+<div class="container" style="max-width: 1200px; max-height: 800px;">
+        <h1 class="text-center">게시판</h1>
+        <div class="justify-content-center">
+            <table class="table table-hover table-striped text-center" style="border:1px solid;">
+                <thead>
+                    <tr style="height: 50px;">
+                        <th>글번호</th>
+                        <th>제목</th>
+                        <th>작성자</th>
+                        <th>작성일</th>
+                        <th>조회수</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="post : ${params.list}">
+                        <td th:text="${post.id}">1</td>
+                        <td><a href="javascript:void(0);" th:onclick="viewPost([[${post.id}]]);" th:text="${post.title}">제목1</a></td>
+                        <td th:text="${post.writer}">작성자1</td>
+                        <td th:text="${#temporals.format(post.createdDate,'yyyy-MM-dd HH:mm')}">작성일1</td>
+                        <td th:text="${post.viewCnt}">조회수1</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <hr>
+
+            <!-- 페이지네이션 출력 -->
+            <div>
+                <ul class="pagination justify-content-center">
+                    <!-- 이전 페이지 링크 -->
+                    <li th:if="${params.pagination.existPrevPage}">
+                        <a role="button"
+                           href="javascript:void(0);"
+                           th:onclick="searchPage([[${params.pagination.startPage-1}]]);"
+                           class="btn text-secondary">
+                            <span>&laquo;</span>
+                        </a>
+                    </li>
+
+                    <!-- 페이지 번호 링크 -->
+                    <li th:each="pageNum : ${#numbers.sequence(params.pagination.startPage, params.pagination.endPage)}">
+                            <a role="button" class="btn text-secondary"
+                               href="javascript:void(0);"
+                               th:onclick="searchPage([[${pageNum}]]);"
+                               th:text="${pageNum}"
+                               th:classappend="${searchDto.page} == ${pageNum}?on:''"></a>
+                    </li>
+
+                    <!-- 다음 페이지 링크 -->
+                    <li th:if="${params.pagination.existNextPage}">
+                        <a role="button"
+                           href="javascript:void(0);"
+                           th:onclick="searchPage([[${params.pagination.endPage+1}]]);"
+                           class="btn text-secondary">
+                            <span>&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+<br><br>
+            <div class="container">
+                <div class="row justify-content-between">
+                    <div class="col-md-10">
+                        <form id="searchForm" onsubmit="return false;" autocomplete="off">
+                            <div class="input-group">
+                                <select class="form-control form-control-sm" id="searchType" name="searchType" title="검색 유형 선택">
+                                    <option value="">전체 검색</option>
+                                    <option value="title">제목</option>
+                                    <option value="content">내용</option>
+                                    <option value="writer">작성자</option>
+                                </select>
+                                <input type="text" class="form-control" id="keyword" name="keyword" placeholder="키워드를 입력해주세요." title="키워드 입력">
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-primary" onclick="searchPage(1)">
+                                        <i class="fas fa-search"></i>
+                                        <span class="skip_info">검색</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-secondary float-right" type="button" th:onclick="|location.href='/board/write'|">
+                            글쓰기
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!--<button th:if="${session?.loginMember == null}" class="btn btn-secondary btn-lg" type="button"
+                    th:onclick="|alert('로그인한 사용자만 글을 작성 할 수 있습니다.');|">글쓰기</button>-->
+<!--                    th:if="${session?.loginMember != null}"-->
+        </div>
+</div>
+
+    <script th:inline="javascript">
+
+        window.onload = () => {
+            setQueryStringParams();
+        }
+
+        //
+        function setQueryStringParams() {
+            if(!location.search) {
+                return false;
+            }
+
+            const form = document.getElementById('searchForm');
+
+            new URLSearchParams(location.search).forEach((value, key) => {
+                if (form[key]) {
+                    form[key].value = value;
+                }
+            })
+        }
+
+        //게시글 상세 페이지 이동
+        function viewPost(id) {
+            const queryString = location.search;
+            location.href = '/board/' + id + queryString;
+            return false;
+        }
+
+        //검색
+        function searchPage(page) {
+
+            const form = document.getElementById('searchForm');
+            let queryParams = '';
+            if(form.searchType.value != '' || form.keyword.value != ''){
+                queryParams = {
+                page: (page) ? page : 1,
+                searchType: form.searchType.value,
+                keyword: form.keyword.value
+                }
+            } else {
+                queryParams = {
+                page: (page) ? page : 1
+                }
+            }
+
+            location.href=location.pathname + '?' + new URLSearchParams(queryParams).toString();
+
+            return false;
+        }
+
+    </script>
+
+</section>
+</body>
+
+</html>

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layoutFile :: layout(~{::title}, ~{::section})}">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>글 상세</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+
+<body>
+<section>
+    <div class="container">
+        <div class="post-Container">
+            <div class="post">
+                <div class="post-header">
+                    <h2 class="post-title">[[${params.title}]]</h2>
+
+                    <div class="post-info">
+                        작성자: [[${params.writer}]] | 작성일자: [[${#temporals.format(params.createdDate,'yyyy-MM-dd HH:mm')}]] | 조회수: [[${params.viewCnt}]]
+                    </div>
+                </div>
+                <div class="post-body">
+                    <p>[[${params.content}]]</p>
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <label for="files">첨부파일</label>
+                        <div id="files" class="file-list">
+                            <!-- 파일 영역이 동적으로 추가될 위치 -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="post-buttons">
+                <input type="button" value="목록으로" onclick="goListPage();" />
+                <th:block th:if="${session?.loginMember.name} == ${params.writer}">
+                <input type="button" value="수정하기" onclick="updateForm();" />
+                <input type="button" value="삭제하기" onclick="deletePost();"/>
+                </th:block>
+            </div>
+        </div>
+
+
+        <div class="py-5 text-center">
+            <h2 th:text="댓글">댓글</h2>
+        </div>
+
+        <div>
+            <h2 th:text="댓글쓰기">댓글쓰기</h2>
+            <textarea name="content" id="content" class="form-control" placeholder="내용을 입력해주세요." rows="5"></textarea>
+            <input type="button" value="작성" onclick="saveComment();" class="btn btn-primary"/>
+        </div>
+
+        <br><br>
+
+    <h2>댓글 목록</h2>
+    <div class="container">
+        <div class="row justify-content-between">
+            <div class="col-md-10">
+                <div id="comment_list">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--/*댓글 페이징 영역*/-->
+    <div class="paging">
+
+    </div>
+
+
+        <hr class="my-4">
+
+    </div> <!-- /container -->
+<script th:inline="javascript">
+
+    window.onload = () => {
+        findAllFile();
+        findAllComment();
+    }
+
+    //게시글 삭제하기
+    function deletePost() {
+
+        let id = [[${params.id}]];
+        if (confirm("글을 삭제하시겠습니까?")) {
+          let form = document.createElement("form");
+          form.method = "POST";
+          form.action = "/board/"+id+"/delete";
+
+          document.body.appendChild(form);
+          form.submit();
+        }
+    }
+
+    //게시글 수정하기
+    function updateForm() {
+        const id = [[${params.id}]];
+        location.href='/board/write?id='+ id;
+    }
+
+    //게시글 목록으로
+    function goListPage() {
+        const queryString = new URLSearchParams(location.search).toString();
+        location.href='/board?'+ queryString;
+    }
+
+    // --- 댓글
+    // 댓글 리스트 생성(HTML Draw)
+    function createCommentList(comments) {
+
+        const commentListDiv = document.getElementById('comment_list');
+
+        if ( !comments.length ) {
+            commentListDiv.innerHTML = '<div><p>등록된 댓글이 없습니다.</p></div>';
+            return false;
+        }
+
+        // 이전에 생성된 댓글 요소들 제거
+        while (commentListDiv.firstChild) {
+            commentListDiv.firstChild.remove();
+        }
+
+        // 댓글 리스트 순회
+        comments.forEach(function(comment) {
+
+            //수정, 삭제시 넘길 코멘트 ID
+            const commentId = comment.id;
+
+            // 댓글 작성자 요소
+            const commentWriter = document.createElement('p');
+            commentWriter.classList.add('mb-1', 'fw-bold', 'writer-'+commentId);
+            commentWriter.textContent = comment.writer;
+
+            // 댓글 작성일 요소
+            const createdDate = new Date(comment.createdDate);
+            const formattedDate = createdDate.toLocaleString('ko', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            const commentDate = document.createElement('span');
+            commentDate.classList.add('text-muted');
+            commentDate.textContent = ' 작성일: ' + formattedDate;
+            commentWriter.appendChild(commentDate);
+
+            // 댓글 내용을 표시할 <textarea> 요소
+            const commentElement = document.createElement('textarea');
+            commentElement.classList.add('form-control', 'mb-2','textarea-'+commentId);
+            commentElement.value = comment.content;
+            commentElement.setAttribute('readonly', 'readonly');
+
+            // 댓글 요소들을 댓글 리스트 div에 추가
+            commentListDiv.appendChild(commentWriter);
+            commentListDiv.appendChild(commentElement);
+
+
+            // 수정 버튼
+            if ([[${session?.loginMember.name}]] === comment.writer) {
+              const editButton = document.createElement('button');
+              editButton.classList.add('btn', 'btn-primary', 'me-2', 'edit-' + commentId);
+              editButton.type = 'button';
+              editButton.textContent = '수정하기';
+              editButton.addEventListener('click', function () {
+                editComment(commentId);
+              });
+              commentListDiv.appendChild(editButton);
+            }
+
+            // 삭제 버튼
+            if ([[${session?.loginMember.name}]] === comment.writer) {
+              const deleteButton = document.createElement('button');
+              deleteButton.classList.add('btn', 'btn-danger');
+              deleteButton.type = 'button';
+              deleteButton.textContent = '삭제하기';
+              deleteButton.addEventListener('click', function () {
+                deleteComment(commentId);
+              });
+              commentListDiv.appendChild(deleteButton);
+            }
+
+            commentListDiv.appendChild(document.createElement('hr'));
+
+        });
+    }
+
+    // 전체 댓글 조회
+    function findAllComment(page) {
+
+        const currentPage = document.querySelector('.paging a.on');
+        page = (page) ? page : (currentPage ? Number(currentPage.text) : 1);
+
+        const postId = [[${params.id}]];
+        const uri = `/posts/${postId}/comments`;
+        const params = {
+            page : page,
+            recordSize : 5,
+            pageSize : 10,
+            postId : postId,
+        }
+
+        getJson(uri, params, function(response){
+            createCommentList(response.list);
+            drawCommentPaging(response.pagination,page);
+        });
+    }
+
+    //댓글 저장
+    function saveComment() {
+        const content = document.getElementById('content');
+        const postId = [[${params.id}]];
+        const writer = [[${session.loginMember.name}]];
+        const uri = `/posts/${postId}/comments`;
+        const params = {
+            postId : postId,
+            content : content.value,
+            writer : writer
+        }
+
+        callApi(uri, 'post', params, function(response) {
+        alert('저장되었습니다.');
+        content.value='';
+        findAllComment(1);
+        });
+    }
+
+    //댓글 삭제
+    function deleteComment(id){
+        if(!confirm('선택하신 댓글을 삭제할까요?')) {
+        return false;
+        }
+
+        const postId = [[${params.id}]];
+        const uri= `/posts/${postId}/comments/${id}`;
+        callApi(uri,'delete');
+        alert('삭제되었습니다.');
+        findAllComment(1);
+    }
+
+    // 댓글 수정 - 1(폼 전달)
+    function editComment(commentId) {
+
+        const commentListDiv = document.getElementById('comment_list');
+
+        // 댓글 내용 요소 가져오기
+        const commentElement = commentListDiv.querySelector('.textarea-'+commentId);
+        const commentContent = commentElement.value;
+
+        // 수정할 내용을 입력 필드로 변경
+        commentElement.removeAttribute('readonly');
+
+        // 수정 버튼을 수정 완료 버튼으로 변경
+        const editButton = commentListDiv.querySelector('.edit-'+commentId);
+        editButton.textContent = '수정 완료';
+        editButton.removeEventListener('click', editComment);
+        editButton.addEventListener('click', function() {
+            updateComment(commentId,commentListDiv,commentElement,editButton);
+        });
+    }
+
+    //댓글 수정 - 2
+    function updateComment(commentId,commentListDiv,commentElement,editButton) {
+        // 수정할 내용 가져오기
+        const commentContent = commentElement.value;
+        const postId = [[${params.id}]];
+
+        // API 호출하여 댓글 수정하기
+        const uri = `/posts/${postId}/comments/${commentId}`;
+        const params = {
+            id: commentId,
+            postId: postId,
+            content: commentContent
+        };
+
+        callApi(uri, 'patch', params, function () {
+            alert('수정되었습니다.');
+            // 수정 완료 후 초기 상태로 변경
+            commentElement.setAttribute('readonly', 'readonly');
+
+            editButton.textContent = '수정하기';
+            editButton.removeEventListener('click', updateComment);
+            editButton.addEventListener('click', function() {
+                editComment(commentId);
+            });
+            // 업데이트된 댓글 목록 조회
+            findAllComment();
+        });
+    }
+
+    //댓글 페이징 HTML
+    function drawCommentPaging(pagination, page) {
+        // 1. 필수 파라미터가 없는 경우, 페이지네이션 HTML을 제거한 후 로직 종료
+        if ( !pagination || !page ) {
+            document.querySelector('.paging').innerHTML = '';
+            throw new Error('Missing required parameters...');
+        }
+        const paging = document.querySelector('.paging');
+        let html = '';
+
+        if (pagination.existPrevPage) {
+        html += `<a href="javascript:void(0);" onclick="findAllComment(1)" class="btn text-secondary">첫 페이지</a>
+                  <a href="javascript:void(0);" onclick="findAllComment(${pagination.startPage - 1})" class="btn text-secondary">이전 페이지</a>`;
+        }
+
+        html += '<p>';
+        for (let i = pagination.startPage; i <= pagination.endPage; i++) {
+        html += `<a href="javascript:void(0);" onclick="findAllComment(${i});" class="btn text-secondary">${i}</a>`;
+        }
+        html += '</p>';
+
+        if (pagination.existNextPage) {
+        html += `<a href="javascript:void(0);" onclick="findAllComment(${pagination.endPage + 1});" class="btn text-secondary">다음 페이지</a>
+                  <a href="javascript:void(0);" onclick="findAllComment(${pagination.totalPageCount});" class="btn text-secondary">마지막 페이지</a>`;
+        }
+
+        paging.innerHTML = html;
+
+        const currentPage = Array.from(paging.querySelectorAll('a')).find(a => (Number(a.text) === page || Number(a.text) === pagination.totalPageCount));
+        currentPage.classList.add('on');
+        currentPage.removeAttribute('onclick');
+        }
+    // 전체 파일 조회
+    function findAllFile() {
+
+        // 1. API 호출
+        const postId = [[ ${params.id}]];
+        getJson(`/posts/${postId}/files`,{}, function(response) {
+            // 2. 로직 종료
+            if ( !response.length ) {
+                return false;
+            }
+
+        // 3. 파일 영역 추가
+        let fileHtml = '<div class="file_down"><div class="cont">';
+        response.forEach(row => {
+        fileHtml += `<div class="input-group mb-3">
+                       <div class="input-group-prepend">
+                         <span class="input-group-text">첨부파일</span>
+                       </div>
+                       <a href="/posts/${postId}/files/${row.id}/download" class="form-control">${row.originalName}</a>
+                     </div>`;
+            });
+        fileHtml += '</div></div>';
+
+        // 4. 파일 HTML 렌더링
+        const filesContainer = document.getElementById('files');
+        filesContainer.innerHTML = fileHtml;
+        });
+    }
+
+</script>
+</section>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

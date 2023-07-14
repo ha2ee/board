@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html th:fragment="layout (title, content)" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/header.css}" href="/static/css/header.css">
+    <link rel="stylesheet" th:href="@{/css/center.css}" href="/static/css/center.css">
+    <link rel="stylesheet" th:href="@{/css/board.css}" href="/static/css/board.css">
+
+    <title th:replace="${title}">레이아웃 타이틀</title>
+</head>
+<body>
+<script th:inline="javascript">
+    const status = /*[[${status}]]*/ false;
+    const message = /*[[${message}]]*/ '';
+    if (status) {
+        alert(message);
+    }
+</script>
+<header>
+    <div class="top_wrap">
+        <h1>CRUD 게시판</h1>
+        <span class="login"><a th:if="${session?.loginMember} == null" href="/members/login">로그인</a>
+                            <a th:if="${session?.loginMember} != null" href="/members/logout">로그아웃</a> |
+            <a href="/members/add">회원가입</a></span>
+
+        <ul class="menu">
+            <li class="menu_item"><a href="/" class="menu_link"><span class="top_menu">HOME</span></a></li>
+            <li class="menu_item"><a th:href="@{/board}" href="#" class="menu_link"><span class="top_menu">게시판</span></a></li>
+            <li class="menu_item"><a href="#" class="menu_link"><span class="top_menu">임시</span></a>
+            </li>
+            <li class="menu_item"><button onclick="alert('감사합니다');">?</button>
+            </li>
+        </ul>
+    </div>
+</header>
+<div th:replace="${content}">
+    <p>레이아웃 컨텐츠</p>
+</div>
+<footer class="py-3 my-4">
+    <div class="container">
+        <ul class="nav justify-content-center border-bottom pb-3 mb-3">
+            <li class="nav-item"><a th:href="@{/}" class="nav-link px-2 text-muted">Home</a></li>
+            <li class="nav-item"><a th:href="@{/board}" class="nav-link px-2 text-muted">Board</a></li>
+        </ul>
+        <p class="text-center text-muted">&copy; 2023 Company, Inc</p>
+    </div>
+</footer>
+<script th:src="@{/js/function.js}"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</body>
+</html>

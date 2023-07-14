@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layoutFile :: layout(~{::title}, ~{::section})}">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>글 작성</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+
+<body>
+<section>
+<div class="container w-50">
+  <h1>글 작성</h1>
+  <form th:action="${params.id == null} ? '': ${params.id} + '/edit' " action="list.html" method="post" th:object="${params}", enctype="multipart/form-data">
+    <th:block th:if="${params.id != null}">
+      <input type="hidden" th:field="*{id}"/>
+      <!--/* 삭제 처리할 파일 번호 */-->
+      <input type="hidden" id="removeFileIds" name="removeFileIds" value="" />
+    </th:block>
+      <input type="hidden" name="writer" th:value="${session?.loginMember.name}">
+    <div class="form-group">
+      <label for="title">제목</label>
+      <input type="text" class="form-control" id="title" th:field="*{title}" required>
+    </div>
+    <div class="form-group">
+      <label for="content">내용</label>
+      <textarea class="form-control" id="content" th:field="*{content}" rows="5" required></textarea>
+    </div>
+
+    <div class="file_list">
+      <div>
+        <div class="mb-3 file_input">
+          <div class="input-group">
+            <input type="text" readonly class="form-control" />
+            <label class="input-group-text">첨부파일
+              <input type="file" name="files" onchange="selectFile(this);" style="display:none;" />
+            </label>
+          </div>
+        </div>
+        <button type="button" onclick="removeFile(this);" class="btn btn-danger"><span>삭제</span></button>
+        <button type="button" onclick="addFile();" class="btn btn-secondary"><span>파일 추가</span></button>
+      </div>
+    </div>
+
+    <br><br>
+    <button type="submit" class="btn btn-primary" th:text="${params.id == null ? '글작성' : '글수정'}">글 작성</button>
+  </form>
+</div>
+<script th:inline="javascript">
+
+  window.onload = () => {
+    findAllFile();
+  }
+
+  //파일 삭제 처리용 생성자 함수
+  function RemoveFileId() {
+    this.ids = [];
+
+    this.add = function(id) {
+      if (!this.ids.includes(id)) {
+        this.ids.push(id);
+      }
+    };
+
+    this.getAll = function() {
+      return this.ids;
+    };
+  }
+  //사용자 정의 객체
+  const removeFileId = new RemoveFileId();
+
+  // 파일 선택
+  function selectFile(element, id) {
+    const file = element.files[0];
+    const filename = element.closest('.input-group').firstElementChild;
+
+    if (!file) {
+      return false;
+    }
+
+    const fileSize = file.size;
+    const maxSize = 10 * 1024 * 1024; // 10MB
+
+    if (fileSize > maxSize) {
+      alert('10MB 이하의 파일로 업로드해 주세요.');
+      element.value = '';
+      return false;
+    }
+    filename.value = file.name;
+
+    if(id) {
+      removeFileId.add(id);
+    }
+  }
+
+  // 파일 추가
+  function addFile() {
+    const fileContainer = document.querySelector('.file_list');
+    const newFileInput = document.createElement('div');
+    newFileInput.innerHTML = `
+        <div class="mb-3 file_input">
+          <div class="input-group">
+            <input type="text" readonly class="form-control" />
+            <label class="input-group-text">첨부파일
+              <input type="file" name="files" onchange="selectFile(this);" style="display:none;" />
+            </label>
+          </div>
+        </div>
+        <button type="button" onclick="removeFile(this);" class="btn btn-danger"><span>삭제</span></button>
+        <button type="button" onclick="addFile();" class="btn btn-secondary"><span>파일 추가</span></button>
+      </div>
+    `;
+    fileContainer.appendChild(newFileInput);
+  }
+
+  // 파일 삭제
+  function removeFile(element, id) {
+    // 1. 삭제할 파일 id 추가
+    if (id) {
+      removeFileId.add(id);
+
+      //form 삭제할 id값들 추가
+      const form = document.querySelector('form');
+      form.removeFileIds.value = removeFileId.getAll().join();
+    }
+
+    // 2. 파일 영역 초기화 & 삭제
+    const fileContainer = element.closest('.file_list');
+    //const fileInput = element.closest('.file_input');
+    const fileInput = element.previousElementSibling;
+
+  // 첫 번째 파일 선택 input 태그인 경우 초기화만 수행
+  if (fileInput.parentElement === fileContainer.firstElementChild) {
+    const inputs = fileInput.querySelectorAll('input');
+    inputs.forEach(input => input.value = '');
+    return false;
+  } else {
+    fileContainer.removeChild(fileInput.parentElement);
+    }
+  }
+
+
+
+  // 전체 파일 조회
+  function findAllFile() {
+    // 1. 신규 등록/수정 체크
+    const post = [[ ${params}]];
+    if (!post.id) {
+      return false;
+    }
+
+    // 2. API 호출
+    getJson(`/posts/${post.id}/files`, {}, function(response) {
+      // 3. 로직 종료
+      if (!response.length) {
+        return false;
+      }
+
+      // 4. 업로드 영역 추가
+      for (let i = 0, len = response.length - 1; i < len; i++) {
+        addFile();
+      }
+
+      // 5. 파일 선택 & 삭제 이벤트 재선언 & 파일명 세팅
+      const fileContainers = document.querySelectorAll('.file_list .input-group');
+      fileContainers.forEach((container, i) => {
+        const textInput = container.querySelector('input[type="text"][readonly]');
+        const fileInput = container.querySelector('input[type="file"]');
+        const fileRemoveBtn = container.parentNode.parentNode.querySelector('.btn-danger');
+        fileInput.setAttribute('onchange', `selectFile(this,${response[i].id})`);
+        fileRemoveBtn.setAttribute('onclick', `removeFile(this,${response[i].id})`);
+        textInput.value = response[i].originalName;
+      });
+    });
+  }
+
+
+
+</script>
+</section>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>
