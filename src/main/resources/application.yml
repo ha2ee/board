@@ -1,0 +1,35 @@
+# JSESSION clear
+server:
+    servlet:
+        session:
+            tracking-modes: cookie
+
+# MariaDB & HikariCP Connection(default)
+# spring.datasource.hikari.driver-class-name=org.mariadb.jdbc.Driver
+# spring.datasource.hikari.jdbc-url=jdbc:mariadb://localhost:3306/boards?serverTimezone=Asia/Seoul&useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
+
+## MariaDB & HikariCP Connection(log4jdbc.log4j2)
+spring:
+    datasource:
+        hikari:
+            driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+            jdbc-url: jdbc:log4jdbc:mariadb://${{secrets.AWS_END_POINT}}:${{secrets.AWS_PORT}}/${{ secrets.AWS_DB_NAME }}?serverTimezone=Asia/Seoul&useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
+            username: ${{ secrets.AWS_USER }}
+            password: ${{ secrets.AWS_PW }}
+            connection-test-query: SELECT NOW() FROM dual
+
+# message
+    messages:
+        basename: messages
+
+# change upload file size (파일당 10MB, 최대 50MB 까지)
+    servlet:
+        multipart:
+            max-file-size: 10MB
+            max-request-size: 50MB
+
+# column name to camel case
+mybatis:
+    configuration:
+        map-underscore-to-camel-case: true
+
