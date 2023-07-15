@@ -1,5 +1,10 @@
 section {
     margin: 0 auto;
+    width: 1400px;
+}
+footer {
+    margin: 0 auto;
+    width: 1400px;
 }
 
 .field-error{
