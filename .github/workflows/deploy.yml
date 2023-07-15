@@ -28,9 +28,9 @@ jobs:
         with:
           files: ./src/main/resources/application.yml
         env:
-          HIKARI_JDBC-URL: ${{ secrets.DB_URL }}
-          HIKARI_USERNAME: ${{ secrets.DB_USERNAME }}
-          HIKARI_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          hikari.jdbc-url: ${{ secrets.DB_URL }}
+          hikari.username: ${{ secrets.DB_USERNAME }}
+          hikari.password: ${{ secrets.DB_PASSWORD }}
 
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew

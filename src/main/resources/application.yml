@@ -15,9 +15,9 @@ spring:
 #            driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
 #            jdbc-url: jdbc:log4jdbc:mariadb://${{ secrets.AWS_END_POINT }}:${{ secrets.AWS_PORT }}/${{ secrets.AWS_DB_NAME }}?serverTimezone=Asia/Seoul&useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
             driver-class-name: org.mariadb.jdbc.Driver
-            jdbc-url: ${HIKARI_JDBC-URL}
-            username: ${HIKARI_USERNAME}
-            password: ${HIKARI_PASSWORD}
+            jdbc-url: ${hikari.jdbc-url}
+            username: ${hikari.username}
+            password: ${hikari.password}
             connection-test-query: SELECT NOW() FROM dual
 
 # message
