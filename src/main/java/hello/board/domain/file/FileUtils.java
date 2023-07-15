@@ -1,5 +1,6 @@
 package hello.board.domain.file;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Component;
@@ -21,7 +22,8 @@ import java.util.UUID;
 @Component
 public class FileUtils {
 
-    private final String uploadPath = Paths.get("develop","upload-files").toString();
+    @Value("${upload-path}")
+    private String uploadPath;
 
     /**
      * 다중 파일 업로드
