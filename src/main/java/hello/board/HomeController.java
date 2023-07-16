@@ -1,21 +1,33 @@
 package hello.board;
 
-import hello.board.domain.member.MemberResponse;
-import hello.board.domain.member.SessionConst;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.SessionAttribute;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.Arrays;
 
 @Slf4j
 @Controller
 @RequestMapping("/")
+@RequiredArgsConstructor
 public class HomeController {
+
+    private final Environment env;
 
     @GetMapping
     public String home() {
         return "page/main/main";
+    }
+
+    @GetMapping("/profile")
+    @ResponseBody
+    public String getProfile () {
+        return Arrays.stream(env.getActiveProfiles())
+                .findFirst()
+                .orElse("");
     }
 }
