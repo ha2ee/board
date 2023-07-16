@@ -20,6 +20,9 @@ spring:
             password: ${hikari.password}
             connection-test-query: SELECT NOW() FROM dual
 
+    profiles:
+        active: local
+
 # message
     messages:
         basename: messages
