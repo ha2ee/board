@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/env bash
 
 #REPOSITORY=/home/ec2-user/board
 #cd $REPOSITORY
