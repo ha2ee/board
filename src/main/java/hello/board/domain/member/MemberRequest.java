@@ -10,6 +10,7 @@ import org.springframework.util.StringUtils;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Past;
 import java.time.LocalDate;
 
 @Getter
@@ -26,8 +27,9 @@ public class MemberRequest {
     private String name; //이름
     @NotNull
     private Gender gender; //성별
-    @NotNull
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @NotNull(message = "생년월일을 입력해주세요.")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @Past(message = "오늘보다 이후 날짜는 입력 할 수 없습니다.")
     private LocalDate birthday; // 생년월일
 
     public void encodingPassword(PasswordEncoder passwordEncoder) {
