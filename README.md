@@ -63,14 +63,20 @@ GitHub 저장소: https://github.com/ha2ee/board
 
 ---
 
+- 배포환경 아키텍쳐 구성
+  ![architecture](https://github.com/ha2ee/cicd_project/assets/115638416/7669a8d5-5f71-4ef4-a107-d001b5866015)
+
 - 게시글 목록
+  - 게시판 레이어에서는 LoginCheckInterceptor를 적용하여 로그인을 체크 했습니다.
   ![Screenshot from 2023-07-19 09-14-47](https://github.com/ha2ee/board/assets/115638416/a5664605-6f93-473d-88ec-27ba1cf7a09a)
 
 - 게시글 작성
-  ![Screenshot from 2023-07-19 09-16-31](https://github.com/ha2ee/board/assets/115638416/373b6527-c2db-422f-9d74-0c5af5e22f29)
+  - 파일 당 10MB의 용량 제한이 있으며, 다중 파일을 업로드 가능하나 파일 용량의 합은 최대 50MB의 제한을 걸었습니다.
+  ![image](https://github.com/ha2ee/cicd_project/assets/115638416/5bb05af9-b256-4670-8a55-7a998301196b)
 
 - 게시글 상세
-  ![Screenshot from 2023-07-19 09-18-03](https://github.com/ha2ee/board/assets/115638416/0f04dc75-f785-481b-9392-36407c2facfe)
+  - 댓글은 API 통신으로 구현하였습니다.
+  ![image](https://github.com/ha2ee/cicd_project/assets/115638416/f6d269ff-c8e4-4197-bc86-aaa970bd090a)
 
 ## 배운 점
 
