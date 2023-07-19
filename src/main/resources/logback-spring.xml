@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration debug="true">
 
+    <property name="LOGS_ABSOLUTE_PATH" value="~/app/log/cicd" />
+    <property name="LOG_PATTERN" value="%-5level %d{yy-MM-dd HH:mm:ss}[%thread] [%logger{0}:%line] - %msg%n"/>
+
     <!-- Appenders -->
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -9,17 +12,28 @@
         </encoder>
     </appender>
 
-    <appender name="console-infolog" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- log 기록할 파일 위치 설정 -->
+        <file>${LOGS_ABSOLUTE_PATH}/logback.log</file>
+        <!-- log 기록 타입 인코딩 -->
         <encoder>
-            <charset>UTF-8</charset>
-            <Pattern>%d %5p %m%n</Pattern>
+            <pattern>${LOG_PATTERN}</pattern>
         </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>${LOGS_ABSOLUTE_PATH}/logFile.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- keep 30 days' worth of history -->
+            <maxHistory>1</maxHistory>
+        </rollingPolicy>
     </appender>
 
     <!-- Logger -->
-    <logger name="hello.board" level="DEBUG" appender-ref="console" />
-    <logger name="jdbc.sqlonly" level="INFO" appender-ref="console-infolog" />
-    <logger name="jdbc.resultsettable" level="INFO" appender-ref="console-infolog" />
+    <logger name="jdbc" level="OFF"/>
+    <logger name="jdbc.sqltiming" level="DEBUG"/>
+
+    <logger name="hello.board" level="DEBUG">
+        <appender-ref ref="FILE"/>
+    </logger>
 
     <!-- Root Logger -->
     <root level="off">
