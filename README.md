@@ -1,38 +1,83 @@
 # Repository 소개
-> Github Action, AWS, Nginx를 활용해서 CI/CD 및 무중단 배포를 환경을 구축한 CRUD 게시판입니다.
->>
->> * Tool : IntelliJ, GitHub, AWS, Nginx, MariaDB
->> * Tech : Java, Thymeleaf, Mybatis
-> <hr>
->   
->> ## DB구성
->> ![image](https://github.com/ha2ee/board/assets/115638416/7e7abe5f-2fb1-424e-b33f-8bb3df81a47c)
->> 
-> <hr>
-> 
->> ## 아키텍쳐
->> ![a drawio (2)](https://github.com/ha2ee/board/assets/115638416/d4fbc0a8-5a13-48da-be56-dd867343fdc6)
->>
->> CI/CD 흐름은 다음과 같이 동작합니다.
->> 1. 코드 푸시가 발생하면 GitHub Actions workflow가 실행됩니다.
->> 2. Gradle을 사용하여 프로젝트를 빌드합니다.
->> 3. 빌드된 애플리케이션을 압축(zip)파일로 만듭니다.
->> 4. 압축 파일을 AWS S3에 업로드합니다.
->> 5. AWS CodeDeploy를 사용하여 EC2 인스턴스에 배포를 생성합니다.
->> 6. 배포 후에는 appspec.yml의 `AfterInstall`훅에서 deploy.sh 스크립트가 실행됩니다.
->> 7. deploy.sh 스크립트는 EC2인스턴스에서 백그라운드로 실행됩니다.
->> 8. deploy.sh 스크립트는 다음 작업을 수행합니다:
->>    * 빌드된 애플리케이션 파일을 복사하여 배포 디렉토리에 저장합니다.
->>    * 현재 실행중인 애플리케이션의 프로필을 확인합니다.
->>    * 현재 사용중인 프로필에 따라 배포할 프로필과 포트를 결정합니다.
->>    * 애플리케이션 파일을 심볼릭 링크를 사용해 배포 디렉토리에 교체합니다.
->>    * 이전에 실행중인 애플리케이션 프로세스 종료합니다.
->>    * 새로운 프로필로 애플리케이션 실행합니다.
->>    * 헬스 체크를 수행해서 애플리케이션이 정상적으로 실행되는지 확인합니다.
->>    * 헬스 체크가 성공한 경우 스위칭 작업 수행합니다.
->>    * switch.sh 스크립트를 수행합니다.
->> 9. switch.sh 스크립트는 다음 작업을 수행합니다:
->>    * 현재 실행중인 프로필의 포트 확인합니다.
->>    * 현재 사용중인 프로필에 따라 전환할 포트를 결정합니다.
->>    * Nginx의 프록시 설정을 변경하여 새로운 포트로 전환합니다.
->>    * Nginx를 다시 로드하여 변경 사항을 적용합니다.
+## ****개요****
+
+---
+
+본 프로젝트는 Java와 관련 기술을 사용하여 CRUD(Create, Read, Update, Delete) 기능을 갖춘 게시판 웹 애플리케이션을 개발하였습니다. 이를 통해 사용자는 게시물을 작성, 조회, 수정 및 삭제할 수 있습니다.
+
+주요 기술 스택으로는 Java, JavaScript, Thymeleaf, MyBatis를 사용하였으며, 데이터베이스로는 MariaDB를 선택하였습니다.
+
+프로젝트는 AWS의 다양한 서비스를 활용하여 구축되었습니다. EC2를 사용하여 애플리케이션을 호스팅하고, RDS를 사용하여 데이터베이스를 관리하였으며, Route 53으로 도메인을 구성하였습니다. 또한, CodeDeploy를 통해 지속적인 배포를 구현하고, Certificate Manager로 SSL 인증서를 발급하여 보안을 강화하였습니다.
+
+웹 서버로는 Nginx를 사용하였으며, GitHub Actions를 통해 자동 빌드 및 배포 환경을 구성하였습니다.
+
+## **구현 내용**
+
+---
+
+- 게시물 목록 조회: 등록된 게시물들을 목록 형태로 조회할 수 있습니다.
+- 게시물 작성: 사용자는 제목과 내용을 입력하여 게시물을 작성할 수 있습니다.
+- 게시물 상세 조회: 선택한 게시물의 상세 내용을 조회할 수 있습니다.
+- 게시물 수정: 작성한 게시물의 내용을 수정할 수 있습니다.
+- 게시물 삭제: 작성한 게시물을 삭제할 수 있습니다.
+
+## ****기술 스택****
+
+---
+
+- 언어: Java, JavaScript
+- 프레임워크: Spring Boot
+- 웹 템플릿 엔진: Thymeleaf
+- 데이터베이스: MariaDB
+- SQL Framework: MyBatis
+- 웹 서버: Nginx
+- 배포 및 인프라: AWS(EC2, RDS, Route 53, CodeDeploy, Certificate Manager)
+- CI/CD: GitHub Actions
+
+## **프로젝트 특징**
+
+---
+
+- 무중단 배포 환경: Nginx를 사용하여 로드 밸런싱과 리버스 프록시를 구성하여 무중단 배포 환경을 구축하였습니다.
+- AWS 활용: AWS를 사용하여 프로젝트를 배포하였으며, RDS, Route53등의 기능을 활용하였습니다.
+- 자동화된 빌드 및 배포: GitHub Actions, AWS CodeDeploy를 활용하여 소스 코드의 자동 빌드 및 배포를 구성하였습니다.
+
+## 프로젝트 관리 및 배포 환경
+
+---
+
+- 프로젝트 관리: GitHub를 사용하여 버전 관리 및 이슈 트래킹을 수행하였습니다.
+- 자동 빌드 및 배포: GitHub Actions를 활용하여 소스 코드에 변경이 있을 때마다 자동으로 빌드 및 배포를 수행하였습니다.
+- 무중단 배포: Nginx를 사용하여 로드 밸런싱과 리버스 프록시를 구성하여 무중단 배포를 실현하였습니다.
+- 클라우드 인프라: AWS EC2를 사용하여 애플리케이션을 호스팅하였으며, RDS를 사용하여 데이터베이스를 관리하였습니다. 또한, Route 53을 이용하여 도메인을 구성하였습니다. SSL 인증서 발급을 위해 Certificate Manager를 활용하였습니다.
+
+## 프로젝트 링크
+
+---
+
+GitHub 저장소: https://github.com/ha2ee/board
+
+배포된 웹 사이트: https://www.spring-web.com/
+
+## 스크린샷
+
+---
+
+- 게시글 목록
+  ![Screenshot from 2023-07-19 09-14-47](https://github.com/ha2ee/board/assets/115638416/a5664605-6f93-473d-88ec-27ba1cf7a09a)
+
+- 게시글 작성
+  ![Screenshot from 2023-07-19 09-16-31](https://github.com/ha2ee/board/assets/115638416/373b6527-c2db-422f-9d74-0c5af5e22f29)
+
+- 게시글 상세
+  ![Screenshot from 2023-07-19 09-18-03](https://github.com/ha2ee/board/assets/115638416/0f04dc75-f785-481b-9392-36407c2facfe)
+
+## 배운 점
+
+---
+
+- Java와 관련된 기술 스택의 활용과 통합
+- AWS의 다양한 서비스를 활용한 클라우드 인프라 구성
+- GitHub Actions를 활용한 자동화된 빌드 및 배포 환경 구축
+- 무중단 배포를 위한 Nginx와 CodeDeploy의 활용
+- SSL 인증서 발급 및 적용 방법 이해
