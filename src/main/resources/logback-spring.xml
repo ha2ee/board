@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration debug="true">
 
-    <property name="LOGS_ABSOLUTE_PATH" value="/app/log" />
+    <property name="LOGS_ABSOLUTE_PATH" value="/home/ec2-user/app/log" />
     <property name="LOG_PATTERN" value="%-5level %d{yy-MM-dd HH:mm:ss}[%thread] [%logger{0}:%line] - %msg%n"/>
 
     <!-- Appenders -->
