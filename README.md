@@ -55,7 +55,7 @@
 
 ---
 
-GitHub 저장소: https://github.com/ha2ee/board
+GitHub 저장소: https://github.com/ha2ee/cicd_project
 
 배포된 웹 사이트: https://www.spring-web.com/
 
