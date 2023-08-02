@@ -218,7 +218,7 @@
     function saveComment() {
         const content = document.getElementById('content');
         const postId = [[${params.id}]];
-        const writer = [[${session.loginMember.name}]];
+        const writer = [[${session?.loginMember?.name}]];
         const uri = `/posts/${postId}/comments`;
         const params = {
             postId : postId,
