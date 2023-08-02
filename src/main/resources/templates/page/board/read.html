@@ -37,11 +37,9 @@
 
             <div class="post-buttons">
                 <input type="button" value="목록으로" onclick="goListPage();" />
-                <th:block th:if="${session?.loginMember.name} != null">
-                    <th:block th:if="${session.loginMember.name == params.writer}">
+                <th:block th:if="${session?.loginMember != null and session?.loginMember.name == params.writer}">
                     <input type="button" value="수정하기" onclick="updateForm();" />
                     <input type="button" value="삭제하기" onclick="deletePost();"/>
-                    </th:block>
                 </th:block>
             </div>
         </div>
@@ -52,9 +50,11 @@
         </div>
 
         <div>
-            <h2 th:text="댓글쓰기">댓글쓰기</h2>
-            <textarea name="content" id="content" class="form-control" placeholder="내용을 입력해주세요." rows="5"></textarea>
-            <input type="button" value="작성" onclick="saveComment();" class="btn btn-primary"/>
+            <th:block th:if="${session?.loginMember != null}">
+                <h2 th:text="댓글쓰기">댓글쓰기</h2>
+                <textarea name="content" id="content" class="form-control" placeholder="내용을 입력해주세요." rows="5"></textarea>
+                <input type="button" value="작성" onclick="saveComment();" class="btn btn-primary"/>
+            </th:block>
         </div>
 
         <br><br>
@@ -162,29 +162,30 @@
             commentListDiv.appendChild(commentWriter);
             commentListDiv.appendChild(commentElement);
 
+            if([[${session?.loginMember?.name}]] != null ) {
+                // 수정 버튼
+                if ([[${session?.loginMember.name}]] === comment.writer) {
+                  const editButton = document.createElement('button');
+                  editButton.classList.add('btn', 'btn-primary', 'me-2', 'edit-' + commentId);
+                  editButton.type = 'button';
+                  editButton.textContent = '수정하기';
+                  editButton.addEventListener('click', function () {
+                    editComment(commentId);
+                  });
+                  commentListDiv.appendChild(editButton);
+                }
 
-            // 수정 버튼
-            if ([[${session?.loginMember.name}]] === comment.writer) {
-              const editButton = document.createElement('button');
-              editButton.classList.add('btn', 'btn-primary', 'me-2', 'edit-' + commentId);
-              editButton.type = 'button';
-              editButton.textContent = '수정하기';
-              editButton.addEventListener('click', function () {
-                editComment(commentId);
-              });
-              commentListDiv.appendChild(editButton);
-            }
-
-            // 삭제 버튼
-            if ([[${session?.loginMember.name}]] === comment.writer) {
-              const deleteButton = document.createElement('button');
-              deleteButton.classList.add('btn', 'btn-danger');
-              deleteButton.type = 'button';
-              deleteButton.textContent = '삭제하기';
-              deleteButton.addEventListener('click', function () {
-                deleteComment(commentId);
-              });
-              commentListDiv.appendChild(deleteButton);
+                // 삭제 버튼
+                if ([[${session?.loginMember.name}]] === comment.writer) {
+                  const deleteButton = document.createElement('button');
+                  deleteButton.classList.add('btn', 'btn-danger');
+                  deleteButton.type = 'button';
+                  deleteButton.textContent = '삭제하기';
+                  deleteButton.addEventListener('click', function () {
+                    deleteComment(commentId);
+                  });
+                  commentListDiv.appendChild(deleteButton);
+                }
             }
 
             commentListDiv.appendChild(document.createElement('hr'));
