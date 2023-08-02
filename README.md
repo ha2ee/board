@@ -65,7 +65,8 @@
   ![architecture](https://github.com/ha2ee/cicd_project/assets/115638416/7669a8d5-5f71-4ef4-a107-d001b5866015)
 
 - 게시글 목록
-  - 게시판 레이어에서는 LoginCheckInterceptor를 적용하여 로그인을 체크 했습니다.
+  - ~~게시판 레이어에서는 LoginCheckInterceptor를 적용하여 로그인을 체크 했습니다.~~
+  - 해당 기능은 제거되었습니다.
   ![Screenshot from 2023-07-19 09-14-47](https://github.com/ha2ee/board/assets/115638416/a5664605-6f93-473d-88ec-27ba1cf7a09a)
 
 - 게시글 작성
